@@ -36,7 +36,7 @@ const Login = () => {
         alert(`Logged in as ${userType}!`);
 
         if (userType === "admin") {
-          navigate("/question-management]");
+          navigate("/admin");
         } else if (userType === "teacher") {
           navigate("/faculty-dashboard");
         } else {
