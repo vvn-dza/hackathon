@@ -8,25 +8,44 @@ import {
   Paper,
   Box
 } from "@mui/material";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
+import axios from "axios"; // Import axios for API calls
 
 const Login = () => {
   const [userType, setUserType] = useState("");
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
 
-  const handleLogin = () => {
-    if (!username || !password || !userType) {
+  const handleLogin = async () => {
+    if (!email || !password || !userType) {
       alert("Please fill in all fields!");
       return;
     }
 
-    alert(`Logged in as ${userType}!`);
+    try {
+    const response = await axios.post("http://localhost:3001/api/v1/users/login", {
+        email,
+        password,
+        role: userType,
+      });
 
-    // Navigate to QuestionManagement only if the user is "Admin"
-    if (userType === "Admin") {
-      navigate("/question-management"); // Navigate on successful login
+      if (response.status === 200) {
+        const { token } = response.data;
+        localStorage.setItem("token", token); // Store token
+        alert(`Logged in as ${userType}!`);
+
+        if (userType === "admin") {
+          navigate("/question-management]");
+        } else if (userType === "teacher") {
+          navigate("/faculty-dashboard");
+        } else {
+          navigate("/student-dashboard");
+        }
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert(error.response?.data?.message || "Login failed");
     }
   };
 
@@ -63,16 +82,16 @@ const Login = () => {
             onChange={(e) => setUserType(e.target.value)}
             margin="normal"
           >
-            <MenuItem value="Student">Student</MenuItem>
-            <MenuItem value="Faculty">Faculty</MenuItem>
-            <MenuItem value="Admin">Admin</MenuItem>
+            <MenuItem value="student">Student</MenuItem>
+            <MenuItem value="teacher">Faculty</MenuItem>
+            <MenuItem value="admin">Admin</MenuItem>
           </TextField>
 
           <TextField
             fullWidth
-            label="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            label="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             margin="normal"
           />
 
@@ -85,12 +104,11 @@ const Login = () => {
             margin="normal"
           />
 
-          {/* Button for login */}
           <Button
             variant="contained"
             color="primary"
             fullWidth
-            onClick={handleLogin} // Call function to navigate
+            onClick={handleLogin}
             sx={{ marginTop: "20px", borderRadius: "6px", padding: "10px" }}
           >
             Login
@@ -100,7 +118,5 @@ const Login = () => {
     </Box>
   );
 };
-
-
 
 export default Login;
