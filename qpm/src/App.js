@@ -3,6 +3,14 @@ import { Routes, Route } from "react-router-dom";
 import Login from "./login";
 import QuestionManagement from "./QuestionManagement";
 import Admin from "./Adminpanel";
+<<<<<<< Updated upstream
+=======
+import Facultydashboard from "./teacherModule/pages/Facultydashboard";
+import GeneratePaper from "./teacherModule/pages/GeneratePaper";
+import Patterns from "./teacherModule/pages/Patterns";
+import Questions from "./teacherModule/pages/Questions";
+import Reports from "./teacherModule/pages/Reports";
+>>>>>>> Stashed changes
 const App = () => {
   return (
     <div>
@@ -10,6 +18,14 @@ const App = () => {
         <Route path="/" element={<Login />} />
         <Route path="/question-management" element={<QuestionManagement />} />
         <Route path="/admin" element={<Admin />} />
+<<<<<<< Updated upstream
+=======
+        <Route path="/faculty-dashboard" element={<Facultydashboard/>}/>
+        <Route path="/generate" element={<GeneratePaper/>}/>
+        <Route path="/patterns" element={<Patterns/>}/>
+        <Route path="/questions" element={<Questions/>}/>
+        <Route path="/reports" element={<Reports/>}/>
+>>>>>>> Stashed changes
       </Routes>
     </div>
   );
