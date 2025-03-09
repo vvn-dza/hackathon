@@ -22,7 +22,7 @@ import {
   BarChart3,
   LogOut,
 } from 'lucide-react';
-import Facultydashboard from '../pages/Facultydashboard';
+
 
 const drawerWidth = 240;
 
@@ -32,7 +32,7 @@ export default function Layoutm({ children }) {
   const location = useLocation();
 
   const menuItems = [
-    { text: 'Dashboard', icon: <Home />, path: '/' },
+    { text: 'Dashboard', icon: <Home />, path: '/faculty-dashboard' },
     { text: 'Questions', icon: <FileQuestion />, path: '/questions' },
     { text: 'Patterns', icon: <FileSpreadsheet />, path: '/patterns' },
     { text: 'Generate Paper', icon: <FileOutput />, path: '/generate' },

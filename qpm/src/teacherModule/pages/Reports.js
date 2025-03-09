@@ -12,6 +12,7 @@ import {
   LineChart,
   Download,
 } from 'lucide-react';
+import Layoutm from '../components/Layoutm';
 
 export default function Reports() {
   return (
