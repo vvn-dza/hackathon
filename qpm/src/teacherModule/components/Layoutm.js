@@ -32,7 +32,7 @@ export default function Layoutm({ children }) {
   const location = useLocation();
 
   const menuItems = [
-    { text: 'Dashboard', icon: <Facultydashboard />, path: '/' },
+    { text: 'Dashboard', icon: <Home />, path: '/' },
     { text: 'Questions', icon: <FileQuestion />, path: '/questions' },
     { text: 'Patterns', icon: <FileSpreadsheet />, path: '/patterns' },
     { text: 'Generate Paper', icon: <FileOutput />, path: '/generate' },

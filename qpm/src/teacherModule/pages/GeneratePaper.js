@@ -11,7 +11,7 @@ import {
   MenuItem,
   TextField,
 } from '@mui/material';
-import { FileOutput, Layout } from 'lucide-react';
+import { FileOutput} from 'lucide-react';
 import Layoutm from '../components/Layoutm';
 
 export default function GeneratePaper() {
