@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState } from "react";
-import { Table, TableHead, TableRow, TableCell, TableBody, Button, Box } from "@mui/material";
-import { getModules, addModule } from "../services/api";
+import { Table, TableHead, TableRow, TableCell, TableBody, Box } from "@mui/material";
+import { getModules } from "../services/api";
 
 const ModuleManagement = () => {
   const [modules, setModules] = useState([]);
@@ -15,18 +14,8 @@ const ModuleManagement = () => {
     setModules(response.data);
   };
 
-  const handleAddModule = async () => {
-    const module = prompt("Enter module name:");
-    if (!module) return;
-    await addModule(module);
-    fetchModules();
-  };
-
   return (
     <Box>
-      <Button variant="contained" color="primary" onClick={handleAddModule} sx={{ mb: 2 }}>
-        Add Module
-      </Button>
       <Table>
         <TableHead>
           <TableRow>

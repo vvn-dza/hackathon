@@ -9,10 +9,16 @@ export const updateUserRole = (id, role) => axios.put(`${API_BASE_URL}/users/${i
 export const deleteUser = (id) => axios.delete(`${API_BASE_URL}/users/${id}`);
 
 export const getSubjects = () => axios.get(`${API_BASE_URL}/subjects`);
-export const addSubject = (subject) => axios.post(`${API_BASE_URL}/subjects`, { subject });
+
 
 export const getModules = () => axios.get(`${API_BASE_URL}/modules`);
-export const addModule = (module) => axios.post(`${API_BASE_URL}/modules`, { module });
+export const addSubject = (subject) =>
+    axios.post(`${API_BASE_URL}/subjects`, { subject });
+  
+  export const addModule = (module) =>
+    axios.post(`${API_BASE_URL}/modules`, { module });
+
+
 
 export const uploadSyllabus = (file) => {
   const formData = new FormData();
