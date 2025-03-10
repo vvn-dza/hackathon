@@ -1,15 +1,16 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Login from "./login";
-import QuestionManagement from "./QuestionManagement"; // Question Management page
+import QuestionManagement from "./teacherModule/pages/QuestionManagement"; // Question Management page
 import Admin from "./Adminpanel";
 import Layoutm from "./teacherModule/components/Layoutm"; // Import Layoutm
 
 import Facultydashboard from "./teacherModule/pages/Facultydashboard";
-import GeneratePaper from "./teacherModule/pages/GeneratePaper";
-import Patterns from "./teacherModule/pages/Patterns";
-import Questions from "./teacherModule/pages/Questions";
+import QuestionPaperGenerator from "./teacherModule/pages/QuestionPaperGenerator";
+
+
 import Reports from "./teacherModule/pages/Reports";
+import ManagementModule from "./teacherModule/pages/ManagementModule";
 
 const App = () => {
   return (
@@ -18,8 +19,8 @@ const App = () => {
         {/* Default route for login */}
         <Route path="/" element={<Login />} />
 
-        {/* Question Management Route */}
-        <Route path="/question-management" element={<QuestionManagement />} />
+       
+        
 
         {/* Admin Module Route */}
         <Route path="/admin" element={<Admin />} />
@@ -27,11 +28,16 @@ const App = () => {
         {/* Teacher Module Routes */}
         <Route path="/faculty-dashboard" element={<Layoutm />}>
           <Route index element={<Facultydashboard />} /> {/* Default route for /faculty-dashboard */}
-          <Route path="generate" element={<GeneratePaper />} /> {/* /faculty-dashboard/generate */}
-          <Route path="patterns" element={<Patterns />} /> {/* /faculty-dashboard/patterns */}
-          <Route path="questions" element={<Questions />} /> {/* /faculty-dashboard/questions */}
+          <Route path="generate" element={<QuestionPaperGenerator />} /> {/* /faculty-dashboard/generate */}
+       
+        
           <Route path="reports" element={<Reports />} /> {/* /faculty-dashboard/reports */}
+          <Route path="*" element={<h1>Page Not Found</h1>} /> {/* Fallback for unknown routes */}
+          <Route path="patterns" element={<ManagementModule/>}/>
+          <Route path="questions" element={<QuestionManagement/>}/>
         </Route>
+         
+        
       </Routes>
     </div>
   );

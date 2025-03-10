@@ -1,36 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { Table, TableHead, TableRow, TableCell, TableBody, Box } from "@mui/material";
-import { getModules } from "../services/api";
+import { getSubjects } from "../services/api"; // Correct import
 
 const ModuleManagement = () => {
   const [modules, setModules] = useState([]);
 
   useEffect(() => {
-    fetchModules();
+    getSubjects()
+      .then((response) => {
+        // Extract modules from subjects
+        const allModules = response.data.flatMap(subject => subject.modules || []);
+        setModules(allModules);
+      })
+      .catch((error) => {
+        console.error("Error fetching subjects:", error);
+      });
   }, []);
 
-  const fetchModules = async () => {
-    const response = await getModules();
-    setModules(response.data);
-  };
-
   return (
-    <Box>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Module Name</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {modules.map((module, index) => (
-            <TableRow key={index}>
-              <TableCell>{module}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </Box>
+    <div>
+      <h2>Module Management</h2>
+      <ul>
+        {modules.map((module, index) => (
+          <li key={index}>{module}</li>
+        ))}
+      </ul>
+    </div>
   );
 };
 
