@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Button, Typography, Paper, MenuItem, Select, TextField } from "@mui/material";
 import jsPDF from "jspdf";
 import axios from "axios";
@@ -11,9 +11,13 @@ const QuestionPaperGenerator = () => {
   const [generatedQuestions, setGeneratedQuestions] = useState([]);
 
   // Fetch available patterns from the backend
+  useEffect(() => {
+    fetchPatterns();
+  }, []);
+
   const fetchPatterns = async () => {
     try {
-      const res = await axios.get("/api/patterns");
+      const res = await axios.get("http://localhost:3001/api/v1/patterns");
       setPatterns(res.data);
     } catch (error) {
       console.error("Error fetching patterns", error);

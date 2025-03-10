@@ -16,6 +16,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Checkbox,
+  ListItemText
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import axios from "axios";
@@ -27,21 +29,21 @@ const ManagementModule = () => {
   const [sections, setSections] = useState([]);
   const [sectionTitle, setSectionTitle] = useState("");
   const [marks, setMarks] = useState("");
-  const [module, setModule] = useState("");
+  const [modules, setModules] = useState([]);
 
   useEffect(() => {
     axios.get("http://localhost:3001/api/v1/patterns").then((res) => setPatterns(res.data));
   }, []);
 
   const handleAddSection = () => {
-    if (!sectionTitle || !marks || !module) {
+    if (!sectionTitle || !marks || modules.length === 0) {
       alert("Please fill all fields!");
       return;
     }
-    setSections([...sections, { id: Date.now(), title: sectionTitle, marks, module }]);
+    setSections([...sections, { id: Date.now(), title: sectionTitle, marks, modules, selected: false }]);
     setSectionTitle("");
     setMarks("");
-    setModule("");
+    setModules([]);
   };
 
   const handleDeleteSection = (id) => {
@@ -60,6 +62,10 @@ const ManagementModule = () => {
       setSubjectCode("");
       setSections([]);
     });
+  };
+
+  const handleCheckboxChange = (id) => {
+    setSections(sections.map(s => s.id === id ? { ...s, selected: !s.selected } : s));
   };
 
   return (
@@ -81,13 +87,28 @@ const ManagementModule = () => {
           </Select>
         </FormControl>
         <FormControl fullWidth margin="normal">
-          <InputLabel>Module</InputLabel>
-          <Select value={module} onChange={(e) => setModule(e.target.value)}>
-            <MenuItem value="Module 1">Module 1</MenuItem>
-            <MenuItem value="Module 2">Module 2</MenuItem>
-            <MenuItem value="Module 3">Module 3</MenuItem>
-            <MenuItem value="Module 4">Module 4</MenuItem>
-            <MenuItem value="Module 5">Module 5</MenuItem>
+          <InputLabel>Modules</InputLabel>
+          <Select multiple value={modules} onChange={(e) => setModules(e.target.value)} renderValue={(selected) => selected.join(", ")}>
+            <MenuItem value="Module 1">
+              <Checkbox checked={modules.includes("Module 1")} />
+              <ListItemText primary="Module 1" />
+            </MenuItem>
+            <MenuItem value="Module 2">
+              <Checkbox checked={modules.includes("Module 2")} />
+              <ListItemText primary="Module 2" />
+            </MenuItem>
+            <MenuItem value="Module 3">
+              <Checkbox checked={modules.includes("Module 3")} />
+              <ListItemText primary="Module 3" />
+            </MenuItem>
+            <MenuItem value="Module 4">
+              <Checkbox checked={modules.includes("Module 4")} />
+              <ListItemText primary="Module 4" />
+            </MenuItem>
+            <MenuItem value="Module 5">
+              <Checkbox checked={modules.includes("Module 5")} />
+              <ListItemText primary="Module 5" />
+            </MenuItem>
           </Select>
         </FormControl>
 
@@ -98,18 +119,22 @@ const ManagementModule = () => {
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: "#1976d2", color: "white" }}>
+                  <TableCell sx={{ color: "white" }}>Select</TableCell>
                   <TableCell sx={{ color: "white" }}>Section</TableCell>
                   <TableCell sx={{ color: "white" }}>Marks</TableCell>
-                  <TableCell sx={{ color: "white" }}>Module</TableCell>
+                  <TableCell sx={{ color: "white" }}>Modules</TableCell>
                   <TableCell sx={{ color: "white" }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {sections.map((s) => (
                   <TableRow key={s.id}>
+                    <TableCell>
+                      <Checkbox checked={s.selected} onChange={() => handleCheckboxChange(s.id)} />
+                    </TableCell>
                     <TableCell>{s.title}</TableCell>
                     <TableCell>{s.marks}</TableCell>
-                    <TableCell>{s.module}</TableCell>
+                    <TableCell>{s.modules.join(", ")}</TableCell>
                     <TableCell>
                       <IconButton onClick={() => handleDeleteSection(s.id)} color="error">
                         <Delete />
