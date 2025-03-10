@@ -1,8 +1,9 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Login from "./login"; 
+import Login from "./login";
 import QuestionManagement from "./QuestionManagement"; // Question Management page
-import Admin from "./Adminpanel"; 
+import Admin from "./Adminpanel";
+import Layoutm from "./teacherModule/components/Layoutm"; // Import Layoutm
 
 import Facultydashboard from "./teacherModule/pages/Facultydashboard";
 import GeneratePaper from "./teacherModule/pages/GeneratePaper";
@@ -24,11 +25,13 @@ const App = () => {
         <Route path="/admin" element={<Admin />} />
 
         {/* Teacher Module Routes */}
-        <Route path="/faculty-dashboard" element={<Facultydashboard />} />
-        <Route path="/generate" element={<GeneratePaper />} />
-        <Route path="/patterns" element={<Patterns />} />
-        <Route path="/questions" element={<Questions />} />
-        <Route path="/reports" element={<Reports />} />
+        <Route path="/faculty-dashboard" element={<Layoutm />}>
+          <Route index element={<Facultydashboard />} /> {/* Default route for /faculty-dashboard */}
+          <Route path="generate" element={<GeneratePaper />} /> {/* /faculty-dashboard/generate */}
+          <Route path="patterns" element={<Patterns />} /> {/* /faculty-dashboard/patterns */}
+          <Route path="questions" element={<Questions />} /> {/* /faculty-dashboard/questions */}
+          <Route path="reports" element={<Reports />} /> {/* /faculty-dashboard/reports */}
+        </Route>
       </Routes>
     </div>
   );

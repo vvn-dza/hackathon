@@ -14,9 +14,10 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import Layoutm from '../components/Layoutm';
+
 export default function Facultydashboard() {
   const navigate = useNavigate();
+  console.log('Facultydashboard rendered');
 
   const cards = [
     {
@@ -53,61 +54,58 @@ export default function Facultydashboard() {
     },
   ];
 
-  return (
-    <>
-    <Layoutm/>
-    <Box>
-      <Typography variant="h1" gutterBottom>
-        Welcome to QPGS
-      </Typography>
-      <Typography variant="body1" color="text.secondary" paragraph>
-        Manage your question bank, create patterns, and generate question papers efficiently.
-      </Typography>
+return (
+<Box>
+        <Typography variant="h1" gutterBottom>
+          Welcome to QPGS
+        </Typography>
+        <Typography variant="body1" color="text.secondary" paragraph>
+          Manage your question bank, create patterns, and generate question papers efficiently.
+        </Typography>
 
-      <Grid container spacing={3} sx={{ mt: 2 }}>
-        {cards.map((card) => (
-          <Grid item xs={12} sm={6} md={3} key={card.title}>
-            <Card
-              sx={{
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  transition: 'transform 0.3s ease-in-out',
-                },
-              }}
-            >
-              <CardContent sx={{ flexGrow: 1 }}>
-                <Box sx={{ color: 'primary.main', mb: 2 }}>
-                  {card.icon}
-                </Box>
-                <Typography variant="h4" gutterBottom>
-                  {card.count}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {card.label}
-                </Typography>
-                <Typography variant="h6" sx={{ mt: 2 }}>
-                  {card.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  {card.description}
-                </Typography>
-                <Button
-                  variant="contained"
-                  endIcon={<ChevronRight />}
-                  onClick={() => navigate(card.path)}
-                  fullWidth
-                >
-                  View Details
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+        <Grid container spacing={3} sx={{ mt: 2 }}>
+          {cards.map((card) => (
+            <Grid item xs={12} sm={6} md={3} key={card.title}>
+              <Card
+                sx={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    transition: 'transform 0.3s ease-in-out',
+                  },
+                }}
+              >
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Box sx={{ color: 'primary.main', mb: 2 }}>
+                    {card.icon}
+                  </Box>
+                  <Typography variant="h4" gutterBottom>
+                    {card.count}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {card.label}
+                  </Typography>
+                  <Typography variant="h6" sx={{ mt: 2 }}>
+                    {card.title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" paragraph>
+                    {card.description}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    endIcon={<ChevronRight />}
+                    onClick={() => navigate(card.path)}
+                    fullWidth
+                  >
+                    View Details
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
     </Box>
-    </>
-  );
+    );
 }

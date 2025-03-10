@@ -12,13 +12,13 @@ import {
   LineChart,
   Download,
 } from 'lucide-react';
-import Layoutm from '../components/Layoutm';
 
 export default function Reports() {
-  return (
-    <>
-    <Layoutm/>
-    <Box>
+
+  console.log('reports rendered');
+
+return (
+<Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
         <Typography variant="h1">Analytics & Reports</Typography>
         <Button variant="outlined" startIcon={<Download />}>
@@ -97,6 +97,5 @@ export default function Reports() {
         </Grid>
       </Grid>
     </Box>
-    </>
-  );
+    );
 }
