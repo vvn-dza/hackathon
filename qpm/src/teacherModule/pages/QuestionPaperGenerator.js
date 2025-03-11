@@ -1,138 +1,140 @@
 import React, { useState, useEffect } from "react";
-import { Container, Button, Typography, Paper, MenuItem, Select, TextField } from "@mui/material";
+import { 
+  Container, 
+  Button, 
+  Typography, 
+  Paper, 
+  MenuItem, 
+  Select, 
+  TextField,
+  Box,
+  FormControl,
+  InputLabel
+} from "@mui/material";
 import jsPDF from "jspdf";
 import axios from "axios";
 
 const QuestionPaperGenerator = () => {
   const [patterns, setPatterns] = useState([]);
   const [selectedPattern, setSelectedPattern] = useState("");
+  const [courseCode, setCourseCode] = useState("");
   const [date, setDate] = useState("");
-  const [subjectCode, setSubjectCode] = useState("");
+  const [loading, setLoading] = useState(false);
   const [generatedQuestions, setGeneratedQuestions] = useState([]);
 
-  // Fetch available patterns from the backend
   useEffect(() => {
     fetchPatterns();
   }, []);
 
   const fetchPatterns = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/v1/patterns");
-      setPatterns(res.data);
+      const response = await axios.get("http://localhost:3001/api/v1/patterns/");
+      console.log(response.data);
+      setPatterns(response.data);
     } catch (error) {
-      console.error("Error fetching patterns", error);
+      console.error("Error fetching patterns:", error);
     }
   };
 
-  // Generate Question Paper
-  const generateQuestionPaper = async () => {
-    if (!selectedPattern || !date || !subjectCode) {
-      alert("Please fill all fields");
-      return;
-    }
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
     try {
-      const res = await axios.post("/api/questions/generate", {
+      const response = await axios.post("/api/generate-questions", {
         patternId: selectedPattern,
-        date,
-        subjectCode,
+        courseCode,
+        date
       });
-
-      setGeneratedQuestions(res.data.questions);
+      
+      setGeneratedQuestions(response.data.questions);
+      generatePDF(response.data.questions);
     } catch (error) {
-      console.error("Error generating question paper", error);
+      console.error("Error generating questions:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Generate PDF
-  const downloadPDF = () => {
+  const generatePDF = (questions) => {
     const doc = new jsPDF();
+    
+    // Add header
     doc.setFontSize(16);
-    doc.text("Question Paper", 20, 20);
+    doc.text(`Course Code: ${courseCode}`, 20, 20);
+    doc.text(`Date: ${date}`, 20, 30);
+    
+    // Add questions
     doc.setFontSize(12);
-    doc.text(`Subject Code: ${subjectCode}`, 20, 30);
-    doc.text(`Date: ${date}`, 20, 40);
-
-    let y = 60;
-    generatedQuestions.forEach((section, index) => {
-      doc.setFontSize(14);
-      doc.text(`${index + 1}. ${section.sectionName}`, 20, y);
-      y += 10;
-
-      section.questions.forEach((q, qIndex) => {
-        doc.setFontSize(12);
-        doc.text(`${qIndex + 1}. ${q.text} (${q.marks} Marks)`, 25, y);
-        y += 10;
-      });
-      y += 5;
+    let yPosition = 50;
+    
+    questions.forEach((question, index) => {
+      doc.text(`${index + 1}. ${question.text}`, 20, yPosition);
+      yPosition += 10;
+      if (question.subQuestions) {
+        question.subQuestions.forEach((subQ, subIndex) => {
+          doc.text(`   ${String.fromCharCode(97 + subIndex)}) ${subQ}`, 30, yPosition);
+          yPosition += 10;
+        });
+      }
     });
-
-    doc.save("Question_Paper.pdf");
+    
+    doc.save(`${courseCode}-question-paper.pdf`);
   };
 
   return (
-    <Container maxWidth="md" sx={{ marginTop: "40px" }}>
-      <Paper elevation={6} sx={{ padding: "30px", borderRadius: "12px", textAlign: "center" }}>
-        <Typography variant="h5" sx={{ marginBottom: "20px", color: "#1976d2" }}>
+    <Container maxWidth="md">
+      <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
+        <Typography variant="h5" gutterBottom>
           Generate Question Paper
         </Typography>
-
-        {/* Pattern Selection */}
-        <Select
-          fullWidth
-          value={selectedPattern}
-          onChange={(e) => setSelectedPattern(e.target.value)}
-          displayEmpty
-          sx={{ marginBottom: "20px" }}
-        >
-          <MenuItem value="" disabled>Select Pattern</MenuItem>
-          {patterns.map((pattern) => (
-            <MenuItem key={pattern._id} value={pattern._id}>
-              {pattern.name}
-            </MenuItem>
-          ))}
-        </Select>
-
-        {/* Date Input */}
-        <TextField
-          fullWidth
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          sx={{ marginBottom: "20px" }}
-        />
-
-        {/* Subject Code */}
-        <TextField
-          fullWidth
-          label="Subject Code"
-          value={subjectCode}
-          onChange={(e) => setSubjectCode(e.target.value)}
-          sx={{ marginBottom: "20px" }}
-        />
-
-        <Button variant="contained" color="primary" fullWidth onClick={generateQuestionPaper} sx={{ marginBottom: "20px" }}>
-          Generate Question Paper
-        </Button>
-
-        {generatedQuestions.length > 0 && (
-          <>
-            <Typography variant="h6" sx={{ marginTop: "20px" }}>Generated Questions</Typography>
-            {generatedQuestions.map((section, index) => (
-              <div key={index} style={{ textAlign: "left", marginTop: "10px" }}>
-                <Typography variant="subtitle1">{index + 1}. {section.sectionName}</Typography>
-                <ul>
-                  {section.questions.map((q, qIndex) => (
-                    <li key={qIndex}>{q.text} ({q.marks} Marks)</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-            <Button variant="contained" color="secondary" fullWidth onClick={downloadPDF} sx={{ marginTop: "20px" }}>
-              Download PDF
-            </Button>
-          </>
-        )}
+        
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <TextField
+            fullWidth
+            label="Course Code"
+            value={courseCode}
+            onChange={(e) => setCourseCode(e.target.value)}
+            required
+            sx={{ mb: 2 }}
+          />
+          
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>Question Paper Pattern</InputLabel>
+            <Select
+              value={selectedPattern}
+              onChange={(e) => setSelectedPattern(e.target.value)}
+              required
+            >
+              {patterns.map((pattern) => (
+                <MenuItem key={pattern.id} value={pattern.id}>
+                  {pattern.patternName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          
+          <TextField
+            fullWidth
+            type="date"
+            label="Exam Date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            required
+            InputLabelProps={{ shrink: true }}
+            sx={{ mb: 3 }}
+          />
+          
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            disabled={loading}
+          >
+            {loading ? "Generating..." : "Generate Question Paper"}
+          </Button>
+        </Box>
       </Paper>
     </Container>
   );

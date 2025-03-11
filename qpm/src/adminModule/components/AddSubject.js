@@ -12,8 +12,9 @@ import {
 } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
+import axios from "axios";
 
-const AddSubject = ({ onAddSubject }) => {
+const AddSubject = () => {
   const [subjectName, setSubjectName] = useState("");
   const [subjectCode, setSubjectCode] = useState("");
   const [department, setDepartment] = useState("");
@@ -38,7 +39,7 @@ const AddSubject = ({ onAddSubject }) => {
     setModules(updatedModules);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!subjectName || !subjectCode || !department || !year || !sem || !type) {
       alert("Please fill all required fields!");
@@ -54,16 +55,27 @@ const AddSubject = ({ onAddSubject }) => {
       specialization: specialization || null, // Optional field
       modules: modules.filter((module) => module.trim() !== ""), // Remove empty modules
     };
-    onAddSubject(subjectData);
-    // Reset form fields
-    setSubjectName("");
-    setSubjectCode("");
-    setDepartment("");
-    setYear("");
-    setSem("");
-    setType("theory");
-    setSpecialization("");
-    setModules([""]);
+
+    try {
+      console.log("Sending data:", JSON.stringify(subjectData, null, 2));
+      const response = await axios.post("http:///localhost:3001/api/v1/subjects", subjectData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log("Response:", response.data);
+      // Reset form fields
+      setSubjectName("");
+      setSubjectCode("");
+      setDepartment("");
+      setYear("");
+      setSem("");
+      setType("theory");
+      setSpecialization("");
+      setModules([""]);
+    } catch (error) {
+      console.error("Error sending data:", error);
+    }
   };
 
   return (

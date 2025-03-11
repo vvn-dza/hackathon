@@ -14,6 +14,7 @@ import {
   IconButton,
   Checkbox,
   TextField,
+  MenuItem,
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 
@@ -22,10 +23,13 @@ const API_URL = "http://localhost:3001/api/v1/questions";
 const QuestionManagement = () => {
   const [questions, setQuestions] = useState([]);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
-  const [marks, setMarks] = useState("");
-  const [module, setModule] = useState("");
-  const [course, setCourse] = useState("");
-  const [difficulty, setDifficulty] = useState("");
+  const [newQuestion, setNewQuestion] = useState({
+    text: "",
+    marks: "",
+    module: "",
+    courseCode: "",
+    difficulty: "",
+  });
 
   useEffect(() => {
     axios
@@ -42,31 +46,6 @@ const QuestionManagement = () => {
     );
   };
 
-  const handleAssignMarks = () => {
-    if (!marks || !module || !course || !difficulty || selectedQuestions.length === 0) {
-      alert("Please fill all fields and select at least one question!");
-      return;
-    }
-
-    axios
-      .post(`${API_URL}`, {
-        questionIds: selectedQuestions,
-        marks,
-        module,
-        course,
-        difficulty,
-      })
-      .then((response) => {
-        setQuestions(response.data);
-        setSelectedQuestions([]);
-        setMarks("");
-        setModule("");
-        setCourse("");
-        setDifficulty("");
-      })
-      .catch((error) => console.error("Error updating questions:", error));
-  };
-
   const handleDeleteQuestion = (id) => {
     axios
       .delete(`${API_URL}/${id}`)
@@ -74,60 +53,56 @@ const QuestionManagement = () => {
       .catch((error) => console.error("Error deleting question:", error));
   };
 
+  const handleAddQuestion = () => {
+    if (!newQuestion.text || !newQuestion.marks || !newQuestion.module || !newQuestion.courseCode || !newQuestion.difficulty) {
+      alert("Please fill all fields!");
+      return;
+    }
+
+    axios
+      .post(API_URL, newQuestion)
+      .then((response) => {
+        setQuestions([...questions, response.data]);
+        setNewQuestion({
+          text: "",
+          marks: "",
+          module: "",
+          courseCode: "",
+          difficulty: "",
+        });
+      })
+      .catch((error) => console.error("Error adding question:", error));
+  };
+
   return (
     <Container maxWidth="md" sx={{ marginTop: "40px" }}>
       <Paper elevation={6} sx={{ padding: "30px", borderRadius: "12px", textAlign: "center" }}>
         <Typography variant="h6" sx={{ marginTop: "30px", color: "#1976d2" }}>
-          Assign Marks & Details
+          Add New Question
         </Typography>
-        
-        <TextField fullWidth label="Marks" type="number" value={marks} onChange={(e) => setMarks(e.target.value)} margin="normal" />
-        <TextField fullWidth label="Module" value={module} onChange={(e) => setModule(e.target.value)} margin="normal" />
-        <TextField fullWidth label="Course" value={course} onChange={(e) => setCourse(e.target.value)} margin="normal" />
-        <TextField fullWidth label="Difficulty" value={difficulty} onChange={(e) => setDifficulty(e.target.value)} margin="normal" />
 
-        <Button variant="contained" color="primary" fullWidth onClick={handleAssignMarks} sx={{ marginTop: "20px", borderRadius: "6px" }}>
-          Assign Marks
+        <TextField fullWidth label="Question Text" value={newQuestion.text} onChange={(e) => setNewQuestion({ ...newQuestion, text: e.target.value })} margin="normal" />
+        <TextField fullWidth label="Marks" type="number" value={newQuestion.marks} onChange={(e) => setNewQuestion({ ...newQuestion, marks: e.target.value })} margin="normal" />
+        <TextField fullWidth label="Module" value={newQuestion.module} onChange={(e) => setNewQuestion({ ...newQuestion, module: e.target.value })} margin="normal" />
+        <TextField fullWidth label="Course Code" value={newQuestion.courseCode} onChange={(e) => setNewQuestion({ ...newQuestion, courseCode: e.target.value })} margin="normal" />
+        <TextField
+          fullWidth
+          label="Difficulty"
+          value={newQuestion.difficulty}
+          onChange={(e) => setNewQuestion({ ...newQuestion, difficulty: e.target.value })}
+          select
+          margin="normal"
+        >
+          <MenuItem value="Easy">Easy</MenuItem>
+          <MenuItem value="Medium">Medium</MenuItem>
+          <MenuItem value="Hard">Hard</MenuItem>
+        </TextField>
+
+        <Button variant="contained" color="secondary" fullWidth onClick={handleAddQuestion} sx={{ marginTop: "20px", borderRadius: "6px" }}>
+          Add Question
         </Button>
 
-        <Typography variant="h4" gutterBottom sx={{ color: "#1976d2", marginTop: "30px" }}>
-          Question Management
-        </Typography>
-
-        <TableContainer component={Paper} sx={{ marginTop: "20px" }}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#1976d2" }}>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>Select</TableCell>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>Question</TableCell>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>Marks</TableCell>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>Module</TableCell>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>Course</TableCell>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>Difficulty</TableCell>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {questions.map((q) => (
-                <TableRow key={q.id}>
-                  <TableCell>
-                    <Checkbox checked={selectedQuestions.includes(q.id)} onChange={() => handleSelectQuestion(q.id)} color="primary" />
-                  </TableCell>
-                  <TableCell>{q.text}</TableCell>
-                  <TableCell>{q.marks}</TableCell>
-                  <TableCell>{q.module}</TableCell>
-                  <TableCell>{q.course}</TableCell>
-                  <TableCell>{q.difficulty}</TableCell>
-                  <TableCell>
-                    <IconButton onClick={() => handleDeleteQuestion(q.id)} color="error">
-                      <Delete />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+       
       </Paper>
     </Container>
   );
