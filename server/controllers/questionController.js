@@ -39,4 +39,39 @@ const deleteQuestion = async (req, res) => {
   }
 };
 
-module.exports = { getQuestions, addQuestion, deleteQuestion };
+// Generate Question Paper
+const generateQuestionPaper = async (req, res) => {
+  const { courseCode, modules, totalMarks } = req.body;
+
+  if (!courseCode || !modules || modules.length === 0 || !totalMarks) {
+    return res.status(400).json({ message: "Please provide courseCode, modules, and totalMarks" });
+  }
+
+  try {
+    let selectedQuestions = [];
+    let remainingMarks = totalMarks;
+
+    for (const module of modules) {
+      const moduleQuestions = await Question.find({ courseCode, module }).sort({ difficulty: 1 });
+
+      for (const question of moduleQuestions) {
+        if (remainingMarks >= question.marks) {
+          selectedQuestions.push(question);
+          remainingMarks -= question.marks;
+        }
+        if (remainingMarks <= 0) break;
+      }
+      if (remainingMarks <= 0) break;
+    }
+
+    if (selectedQuestions.length === 0) {
+      return res.status(404).json({ message: "No suitable questions found" });
+    }
+
+    res.status(200).json({ message: "Question Paper Generated", questions: selectedQuestions });
+  } catch (error) {
+    res.status(500).json({ message: "Error generating question paper", error });
+  }
+};
+
+module.exports = { getQuestions, addQuestion, deleteQuestion, generateQuestionPaper };

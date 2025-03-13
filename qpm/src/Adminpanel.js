@@ -82,7 +82,7 @@ const Adminpanel = () => {
           {activeTab === 1 && (
             <Box>
               <AddSubject onAddSubject={handleAddSubject} />
-              <AddModule onAddModule={handleAddModule} />
+            
               <SubjectManagement />
               <ModuleManagement />
             </Box>

@@ -8,9 +8,10 @@ export const registerUser = (userData) => axios.post(`${API_BASE_URL}/users/regi
 
 // User Management APIs
 export const getUsers = () => axios.get(`${API_BASE_URL}/users`);
-export const addUser = (user) => axios.post(`${API_BASE_URL}/users`, user);
+export const addUser = (user) => axios.post(`${API_BASE_URL}/users/register`, user);
 export const updateUser = (id, userData) => axios.put(`${API_BASE_URL}/users/${id}`, userData);
-export const updateUserRole = (id, role) => axios.put(`${API_BASE_URL}/users/${id}/role`, { role });
+export const updateUserRole = (id, role) => axios.put(`${API_BASE_URL}/users/${id}`, { role });
+
 export const deleteUser = (id) => axios.delete(`${API_BASE_URL}/users/${id}`);
 
 // Subject and Module Management APIs
@@ -37,4 +38,16 @@ export const getSyllabus = async () => {
 
 export const deleteSyllabus = async (id) => {
   return await axios.delete(`${API_BASE_URL}/syllabus/${id}`);
+};
+
+export const deleteSubject = async (id) => {
+  const response = await fetch(`/api/subjects/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete subject");
+  }
+
+  return response.json();
 };

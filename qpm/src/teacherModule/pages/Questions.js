@@ -85,9 +85,9 @@ return (
                     onChange={(e) => setDifficulty(e.target.value)}
                     label="Difficulty"
                   >
-                    <MenuItem value="easy">Easy</MenuItem>
-                    <MenuItem value="medium">Medium</MenuItem>
-                    <MenuItem value="hard">Hard</MenuItem>
+                    <MenuItem value="easy">Easy | L1</MenuItem>
+                    <MenuItem value="medium">Medium | L2</MenuItem>
+                    <MenuItem value="hard">Hard | L3</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>

@@ -6,25 +6,42 @@ import {
   MenuItem,
   Typography,
   Paper,
-  Box
+  Box,
+  useTheme,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // Import axios for API calls
+import axios from "axios";
 
 const Login = () => {
   const [userType, setUserType] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState("info");
   const navigate = useNavigate();
+  const theme = useTheme(); // Import MUI theme
+
+  const showAlert = (message, severity) => {
+    setAlertMessage(message);
+    setAlertSeverity(severity);
+    setAlertOpen(true);
+  };
+
+  const handleClose = () => {
+    setAlertOpen(false);
+  };
 
   const handleLogin = async () => {
     if (!email || !password || !userType) {
-      alert("Please fill in all fields!");
+      showAlert("Please fill in all fields!", "warning");
       return;
     }
 
     try {
-    const response = await axios.post("http://localhost:3001/api/v1/users/login", {
+      const response = await axios.post("http://localhost:3001/api/v1/users/login", {
         email,
         password,
         role: userType,
@@ -32,20 +49,22 @@ const Login = () => {
 
       if (response.status === 200) {
         const { token } = response.data;
-        localStorage.setItem("token", token); // Store token
-        alert(`Logged in as ${userType}!`);
+        localStorage.setItem("token", token);
+        showAlert(`Logged in as ${userType}!`, "success");
 
-        if (userType === "admin") {
-          navigate("/admin");
-        } else if (userType === "teacher") {
-          navigate("/faculty-dashboard");
-        } else {
-          navigate("/student-dashboard");
-        }
+        setTimeout(() => {
+          if (userType === "admin") {
+            navigate("/admin");
+          } else if (userType === "teacher") {
+            navigate("/faculty-dashboard");
+          } else {
+            navigate("/student-dashboard");
+          }
+        }, 1000);
       }
     } catch (error) {
       console.error("Login failed:", error);
-      alert(error.response?.data?.message || "Login failed");
+      showAlert(error.response?.data?.message || "Login failed", "error");
     }
   };
 
@@ -56,7 +75,7 @@ const Login = () => {
         justifyContent: "center",
         alignItems: "center",
         minHeight: "100vh",
-        backgroundColor: "#f5f7fa",
+        backgroundColor: theme.palette.background.default, // Use theme background color
       }}
     >
       <Container maxWidth="xs">
@@ -64,13 +83,13 @@ const Login = () => {
           elevation={6}
           sx={{
             padding: "30px",
-            borderRadius: "12px",
+            borderRadius: "10px",
             textAlign: "center",
-            backgroundColor: "#ffffff",
-            boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
+            backgroundColor: theme.palette.background.paper, // Use theme color
+            boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <Typography variant="h4" gutterBottom sx={{ color: "#1976d2" }}>
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: theme.palette.primary.main }}>
             Login
           </Typography>
 
@@ -81,6 +100,7 @@ const Login = () => {
             value={userType}
             onChange={(e) => setUserType(e.target.value)}
             margin="normal"
+            sx={{ borderRadius: "6px" }}
           >
             <MenuItem value="student">Student</MenuItem>
             <MenuItem value="teacher">Faculty</MenuItem>
@@ -93,6 +113,7 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             margin="normal"
+            sx={{ borderRadius: "6px" }}
           />
 
           <TextField
@@ -102,18 +123,35 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             margin="normal"
+            sx={{ borderRadius: "6px" }}
           />
 
           <Button
             variant="contained"
-            color="primary"
             fullWidth
             onClick={handleLogin}
-            sx={{ marginTop: "20px", borderRadius: "6px", padding: "10px" }}
+            sx={{
+              marginTop: "20px",
+              borderRadius: "6px",
+              padding: "10px",
+              fontSize: "16px",
+              fontWeight: "bold",
+              backgroundColor: theme.palette.primary.main,
+              "&:hover": {
+                backgroundColor: theme.palette.primary.dark,
+              },
+            }}
           >
             Login
           </Button>
         </Paper>
+
+        {/* Snackbar for modern alerts */}
+        <Snackbar open={alertOpen} autoHideDuration={3000} onClose={handleClose} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+          <Alert onClose={handleClose} severity={alertSeverity} sx={{ width: "100%" }}>
+            {alertMessage}
+          </Alert>
+        </Snackbar>
       </Container>
     </Box>
   );

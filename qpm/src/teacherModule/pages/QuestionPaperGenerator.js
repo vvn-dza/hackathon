@@ -1,141 +1,160 @@
-import React, { useState, useEffect } from "react";
-import { 
-  Container, 
-  Button, 
-  Typography, 
-  Paper, 
-  MenuItem, 
-  Select, 
+import React, { useState } from "react";
+import {
+  Button,
+  Container,
+  Typography,
+  MenuItem,
+  Select,
+  Paper,
   TextField,
+  FormControlLabel,
+  Checkbox,
   Box,
+  Snackbar,
+  Alert,
   FormControl,
-  InputLabel
+  InputLabel,
+  Card,
+  CardContent
 } from "@mui/material";
-import jsPDF from "jspdf";
-import axios from "axios";
+
+const questionBank = [
+  { id: 1, module: 1, type: "2-mark", question: "Define recursion." },
+  { id: 2, module: 1, type: "10-mark", question: "Explain the concept of polymorphism." },
+  { id: 3, module: 2, type: "8-mark", question: "Describe the working of a stack." },
+  { id: 4, module: 2, type: "10-mark", question: "Discuss the OSI model layers." },
+  { id: 5, module: 3, type: "2-mark", question: "What is an algorithm?" },
+];
 
 const QuestionPaperGenerator = () => {
-  const [patterns, setPatterns] = useState([]);
-  const [selectedPattern, setSelectedPattern] = useState("");
-  const [courseCode, setCourseCode] = useState("");
+  const [patternType, setPatternType] = useState("50");
+  const [modules, setModules] = useState([]);
+  const [subject, setSubject] = useState("");
   const [date, setDate] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [generatedQuestions, setGeneratedQuestions] = useState([]);
+  const [semester, setSemester] = useState("");
+  const [questionPaper, setQuestionPaper] = useState([]);
+  const [alert, setAlert] = useState({ open: false, message: "", severity: "success" });
 
-  useEffect(() => {
-    fetchPatterns();
-  }, []);
-
-  const fetchPatterns = async () => {
-    try {
-      const response = await axios.get("http://localhost:3001/api/v1/patterns/");
-      console.log(response.data);
-      setPatterns(response.data);
-    } catch (error) {
-      console.error("Error fetching patterns:", error);
-    }
+  const handleModuleChange = (mod) => {
+    setModules((prevModules) =>
+      prevModules.includes(mod)
+        ? prevModules.filter((m) => m !== mod)
+        : [...prevModules, mod]
+    );
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    try {
-      const response = await axios.post("/api/generate-questions", {
-        patternId: selectedPattern,
-        courseCode,
-        date
-      });
-      
-      setGeneratedQuestions(response.data.questions);
-      generatePDF(response.data.questions);
-    } catch (error) {
-      console.error("Error generating questions:", error);
-    } finally {
-      setLoading(false);
+  const generatePaper = () => {
+    if (!subject || !date || !semester) {
+      setAlert({ open: true, message: "Please fill in all required fields.", severity: "error" });
+      return;
     }
-  };
-
-  const generatePDF = (questions) => {
-    const doc = new jsPDF();
     
-    // Add header
-    doc.setFontSize(16);
-    doc.text(`Course Code: ${courseCode}`, 20, 20);
-    doc.text(`Date: ${date}`, 20, 30);
-    
-    // Add questions
-    doc.setFontSize(12);
-    let yPosition = 50;
-    
-    questions.forEach((question, index) => {
-      doc.text(`${index + 1}. ${question.text}`, 20, yPosition);
-      yPosition += 10;
-      if (question.subQuestions) {
-        question.subQuestions.forEach((subQ, subIndex) => {
-          doc.text(`   ${String.fromCharCode(97 + subIndex)}) ${subQ}`, 30, yPosition);
-          yPosition += 10;
-        });
+    const selectedQuestions = [];
+    if (patternType === "50") {
+      if (modules.length === 0) {
+        setAlert({ open: true, message: "Please select at least one module.", severity: "error" });
+        return;
       }
-    });
+      modules.forEach((module) => {
+        const filteredQuestions = questionBank.filter(q => q.module === module);
+        selectedQuestions.push(...filteredQuestions.slice(0, 5));
+      });
+    } else {
+      const filteredQuestions = questionBank.slice(0, 10);
+      selectedQuestions.push(...filteredQuestions);
+    }
     
-    doc.save(`${courseCode}-question-paper.pdf`);
+    setQuestionPaper(selectedQuestions);
+    setAlert({ open: true, message: "Question paper generated successfully.", severity: "success" });
   };
 
   return (
-    <Container maxWidth="md">
-      <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
-        <Typography variant="h5" gutterBottom>
-          Generate Question Paper
-        </Typography>
-        
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-          <TextField
-            fullWidth
-            label="Course Code"
-            value={courseCode}
-            onChange={(e) => setCourseCode(e.target.value)}
-            required
-            sx={{ mb: 2 }}
-          />
-          
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Question Paper Pattern</InputLabel>
-            <Select
-              value={selectedPattern}
-              onChange={(e) => setSelectedPattern(e.target.value)}
-              required
-            >
-              {patterns.map((pattern) => (
-                <MenuItem key={pattern.id} value={pattern.id}>
-                  {pattern.patternName}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          
-          <TextField
-            fullWidth
-            type="date"
-            label="Exam Date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required
-            InputLabelProps={{ shrink: true }}
-            sx={{ mb: 3 }}
-          />
-          
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            disabled={loading}
-          >
-            {loading ? "Generating..." : "Generate Question Paper"}
-          </Button>
-        </Box>
-      </Paper>
+    <Container>
+      <Box sx={{ paddingTop: 4 }}>
+        <Card elevation={3} sx={{ padding: 3, borderRadius: 2 }}>
+          <CardContent>
+            <Typography variant="h4" gutterBottom>Question Paper Generator</Typography>
+            
+            <TextField
+              label="Subject/Course Code"
+              fullWidth
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              sx={{ marginBottom: 2 }}
+            />
+            
+            <TextField
+              label="Date"
+              type="date"
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              sx={{ marginBottom: 2 }}
+            />
+            
+            <FormControl fullWidth sx={{ marginBottom: 2 }}>
+              <InputLabel>Semester</InputLabel>
+              <Select
+                value={semester}
+                onChange={(e) => setSemester(e.target.value)}
+              >
+                <MenuItem value="Semester 1">Semester 1</MenuItem>
+                <MenuItem value="Semester 2">Semester 2</MenuItem>
+                <MenuItem value="Semester 3">Semester 3</MenuItem>
+              </Select>
+            </FormControl>
+            
+            <FormControl fullWidth sx={{ marginBottom: 2 }}>
+              <InputLabel>Marks</InputLabel>
+              <Select
+                value={patternType}
+                onChange={(e) => setPatternType(e.target.value)}
+              >
+                <MenuItem value="50">50 Marks</MenuItem>
+                <MenuItem value="100">100 Marks</MenuItem>
+              </Select>
+            </FormControl>
+
+            {patternType === "50" && (
+              <Box p={2} sx={{ border: "1px solid #ccc", borderRadius: 2, marginBottom: 2 }}>
+                <Typography variant="subtitle1">Select Modules:</Typography>
+                {[1, 2, 3, 4, 5].map((mod) => (
+                  <FormControlLabel
+                    key={mod}
+                    control={
+                      <Checkbox
+                        checked={modules.includes(mod)}
+                        onChange={() => handleModuleChange(mod)}
+                      />
+                    }
+                    label={`Module ${mod}`}
+                  />
+                ))}
+              </Box>
+            )}
+            
+            <Button variant="contained" color="primary" onClick={generatePaper} sx={{ marginTop: 2 }}>Generate Question Paper</Button>
+          </CardContent>
+        </Card>
+      </Box>
+      
+      {questionPaper.length > 0 && (
+        <Paper sx={{ padding: 3, marginTop: 4, borderRadius: 2 }}>
+          <Typography variant="h5">Generated Question Paper</Typography>
+          <Typography variant="subtitle1">Date: {date} | Semester: {semester}</Typography>
+          <Typography variant="subtitle1">Subject: {subject}</Typography>
+          {questionPaper.map((q, index) => (
+            <Typography key={q.id}>{index + 1}. {q.question}</Typography>
+          ))}
+        </Paper>
+      )}
+      
+      <Snackbar open={alert.open} autoHideDuration={3000} onClose={() => setAlert({ ...alert, open: false })} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+        <Alert onClose={() => setAlert({ ...alert, open: false })} severity={alert.severity} sx={{ width: "100%" }}>
+          {alert.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

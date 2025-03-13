@@ -1,12 +1,19 @@
 import React, { useState } from "react";
-import { Box, TextField, Button, Typography } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { uploadSyllabus } from "../services/api";
 
 const SyllabusUpload = () => {
-  const [courseCode, setCourseCode] = useState(""); // State for course code
-  const [file, setFile] = useState(null); // State for uploaded file
-  const [uploadStatus, setUploadStatus] = useState(""); // State for upload status
+  const [courseCode, setCourseCode] = useState(""); // Course code state
+  const [file, setFile] = useState(null); // Uploaded file state
+  const [message, setMessage] = useState({ open: false, text: "", severity: "success" });
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -18,28 +25,42 @@ const SyllabusUpload = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!courseCode || !file) {
-      alert("Please fill the course code and select a file!");
+      setMessage({ open: true, text: "Please fill the course code and select a file!", severity: "error" });
       return;
     }
 
     try {
       const response = await uploadSyllabus(courseCode, file);
-      setUploadStatus("Syllabus uploaded successfully!");
       console.log("Uploaded Syllabus:", response.data);
+
+      setMessage({ open: true, text: "Syllabus uploaded successfully!", severity: "success" });
+
       // Reset form fields
       setCourseCode("");
       setFile(null);
     } catch (error) {
-      setUploadStatus("Failed to upload syllabus: " + error.message);
       console.error("Upload Error:", error);
+      setMessage({ open: true, text: "Failed to upload syllabus!", severity: "error" });
     }
   };
 
   return (
-    <Box>
+    <Box sx={{ maxWidth: 500, mx: "auto", textAlign: "center" }}>
       <Typography variant="h6" gutterBottom>
         Upload Syllabus
       </Typography>
+
+      {/* Snackbar for messages */}
+      <Snackbar
+        open={message.open}
+        autoHideDuration={3000}
+        onClose={() => setMessage({ ...message, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={() => setMessage({ ...message, open: false })} severity={message.severity} sx={{ width: "100%" }}>
+          {message.text}
+        </Alert>
+      </Snackbar>
 
       {/* Course Code Field */}
       <TextField
@@ -49,6 +70,7 @@ const SyllabusUpload = () => {
         fullWidth
         margin="normal"
         required
+        sx={{ mt: 3 }}
       />
 
       {/* File Upload Field */}
@@ -56,7 +78,8 @@ const SyllabusUpload = () => {
         variant="contained"
         component="label"
         startIcon={<CloudUploadIcon />}
-        sx={{ mt: 2 }}
+        fullWidth
+        sx={{ mt: 3, py: 1.5 }}
       >
         Upload File
         <input type="file" hidden onChange={handleFileChange} />
@@ -64,7 +87,7 @@ const SyllabusUpload = () => {
 
       {/* Display Uploaded File Name */}
       {file && (
-        <Typography sx={{ mt: 2 }}>
+        <Typography sx={{ mt: 2, fontSize: "14px", color: "gray" }}>
           Selected File: {file.name}
         </Typography>
       )}
@@ -74,17 +97,11 @@ const SyllabusUpload = () => {
         variant="contained"
         color="primary"
         onClick={handleSubmit}
-        sx={{ mt: 2 }}
+        fullWidth
+        sx={{ mt: 3, py: 1.5 }}
       >
         Upload Syllabus
       </Button>
-
-      {/* Upload Status */}
-      {uploadStatus && (
-        <Typography sx={{ mt: 2, color: uploadStatus.includes("Failed") ? "error.main" : "success.main" }}>
-          {uploadStatus}
-        </Typography>
-      )}
     </Box>
   );
 };
