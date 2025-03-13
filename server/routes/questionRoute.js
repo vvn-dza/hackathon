@@ -6,6 +6,6 @@ const router = express.Router();
 router.get("/", getQuestions);
 router.post("/", addQuestion);
 router.delete("/:id", deleteQuestion);
-router.post("/generate-paper", generateQuestionPaper); // New route to generate question paper
+router.post("/generate-paper", generateQuestionPaper);
 
 module.exports = router;

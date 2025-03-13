@@ -7,7 +7,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const pattern=require("./routes/patternRoutes")
 const questionRoutes = require("./routes/questionRoute");
-
+const Question = require("./models/Question");
 
 const connectDB = require("./config/db");
 

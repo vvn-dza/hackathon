@@ -39,27 +39,25 @@ const deleteQuestion = async (req, res) => {
   }
 };
 
-// Generate Question Paper
+// Generate a random question paper based on total marks
 const generateQuestionPaper = async (req, res) => {
-  const { courseCode, modules, totalMarks } = req.body;
+  const { courseCode, totalMarks } = req.body;
 
-  if (!courseCode || !modules || modules.length === 0 || !totalMarks) {
-    return res.status(400).json({ message: "Please provide courseCode, modules, and totalMarks" });
+  if (!courseCode || !totalMarks) {
+    return res.status(400).json({ message: "Please provide courseCode and totalMarks" });
   }
 
   try {
+    let allQuestions = await Question.find({ courseCode });
+    allQuestions = allQuestions.sort(() => 0.5 - Math.random()); // Shuffle the questions
+
     let selectedQuestions = [];
     let remainingMarks = totalMarks;
 
-    for (const module of modules) {
-      const moduleQuestions = await Question.find({ courseCode, module }).sort({ difficulty: 1 });
-
-      for (const question of moduleQuestions) {
-        if (remainingMarks >= question.marks) {
-          selectedQuestions.push(question);
-          remainingMarks -= question.marks;
-        }
-        if (remainingMarks <= 0) break;
+    for (const question of allQuestions) {
+      if (remainingMarks >= question.marks) {
+        selectedQuestions.push(question);
+        remainingMarks -= question.marks;
       }
       if (remainingMarks <= 0) break;
     }
@@ -73,5 +71,7 @@ const generateQuestionPaper = async (req, res) => {
     res.status(500).json({ message: "Error generating question paper", error });
   }
 };
+
+
 
 module.exports = { getQuestions, addQuestion, deleteQuestion, generateQuestionPaper };
