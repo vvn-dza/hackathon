@@ -12,6 +12,8 @@ import QuestionPaperGenerator from "./teacherModule/pages/QuestionPaperGenerator
 import Reports from "./teacherModule/pages/Reports";
 import ManagementModule from "./teacherModule/pages/ManagementModule";
 
+import StudentDashboard from "./studentModule/pages/StudentDashboard";
+
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
@@ -32,6 +34,10 @@ const App = () => {
           <Route path="questions" element={<QuestionManagement />} />
           <Route path="*" element={<h1>Page Not Found</h1>} />
         </Route>
+
+        {/* Student Module Route */}
+        <Route path="/student-dashboard" element={<StudentDashboard />} />
+
       </Routes>
     </ThemeProvider>
   );

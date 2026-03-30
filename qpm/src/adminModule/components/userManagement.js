@@ -20,6 +20,20 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddUser from "./AddUser";
 import { getUsers, addUser, deleteUser, updateUserRole } from "../services/api";
 
+const getRoleStyles = (role) => {
+  switch (role) {
+    case "admin":
+      return { backgroundColor: "#FDECEC", color: "#E16259" };
+    case "teacher":
+    case "HOD":
+      return { backgroundColor: "#EEF3FD", color: "#4A7CDA" };
+    case "student":
+      return { backgroundColor: "#F7F6F3", color: "#6B6860" };
+    default:
+      return { backgroundColor: "#F7F6F3", color: "#37352F" };
+  }
+};
+
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [selectedRoles, setSelectedRoles] = useState({});
@@ -33,8 +47,6 @@ const UserManagement = () => {
     try {
       const response = await getUsers();
       setUsers(response.data);
-
-      // Initialize selected roles state
       const roles = {};
       response.data.forEach((user) => {
         roles[user._id] = user.role;
@@ -58,13 +70,12 @@ const UserManagement = () => {
   const handleDeleteUser = async (id) => {
     try {
       await deleteUser(id);
-      fetchUsers(); // Refresh the user list
+      fetchUsers();
       setMessage({ open: true, text: "User deleted successfully!", severity: "success" });
     } catch (error) {
       setMessage({ open: true, text: "Failed to delete user!", severity: "error" });
     }
   };
-  
 
   const handleRoleChange = (id, role) => {
     setSelectedRoles((prev) => ({ ...prev, [id]: role }));
@@ -86,8 +97,10 @@ const UserManagement = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "90%", mx: "auto", mt: 5 }}>
-      <AddUser onAddUser={handleAddUser} />
+    <Box sx={{ width: "100%", mt: 2 }}>
+      <Box sx={{ mb: 3 }}>
+        <AddUser onAddUser={handleAddUser} />
+      </Box>
 
       <Snackbar
         open={message.open}
@@ -95,42 +108,80 @@ const UserManagement = () => {
         onClose={() => setMessage({ ...message, open: false })}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert onClose={() => setMessage({ ...message, open: false })} severity={message.severity} sx={{ width: "100%" }}>
+        <Alert onClose={() => setMessage({ ...message, open: false })} severity={message.severity} sx={{ width: "100%", borderRadius: "8px" }}>
           {message.text}
         </Alert>
       </Snackbar>
 
-      <TableContainer component={Paper} sx={{ mt: 4, overflowX: "auto" }}>
-        <Table>
+      <TableContainer 
+        component={Paper} 
+        elevation={0}
+        sx={{ 
+          borderRadius: "10px", 
+          border: "1px solid #E9E9E7",
+          backgroundColor: "#FFFFFF"
+        }}
+      >
+        <Table sx={{ minWidth: 650 }}>
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Role</TableCell>
+              <TableCell sx={{ fontWeight: 600, textAlign: "right" }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {users.map((user) => (
               <TableRow key={user._id}>
                 <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  <FormControl fullWidth>
-                    <Select value={selectedRoles[user._id] || user.role} onChange={(e) => handleRoleChange(user._id, e.target.value)}>
-                      <MenuItem value="admin">Admin</MenuItem>
-                      <MenuItem value="teacher">Teacher</MenuItem>
-                      <MenuItem value="exam_staff">Exam Staff</MenuItem>
-                      <MenuItem value="HOD">HOD</MenuItem>
-                    </Select>
-                  </FormControl>
+                <TableCell sx={{ color: "#9B9A97", fontFamily: '"Inter", sans-serif' }}>
+                  {user.email}
                 </TableCell>
                 <TableCell>
-                  <Button variant="contained" color="primary" onClick={() => handleUpdateRole(user._id)} sx={{ mr: 1 }}>
-                    Update Role
+                   <Select
+                     size="small"
+                     value={selectedRoles[user._id] || user.role}
+                     onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                     sx={{
+                       height: '24px',
+                       fontSize: '12px',
+                       fontWeight: 500,
+                       borderRadius: '4px',
+                       '& .MuiSelect-select': {
+                         padding: '2px 8px',
+                         ...getRoleStyles(selectedRoles[user._id] || user.role)
+                       },
+                       '& fieldset': { border: 'none' },
+                     }}
+                   >
+                     <MenuItem value="admin" sx={{ fontSize: '13px' }}>Admin</MenuItem>
+                     <MenuItem value="teacher" sx={{ fontSize: '13px' }}>Teacher</MenuItem>
+                     <MenuItem value="exam_staff" sx={{ fontSize: '13px' }}>Exam Staff</MenuItem>
+                     <MenuItem value="HOD" sx={{ fontSize: '13px' }}>HOD</MenuItem>
+                     <MenuItem value="student" sx={{ fontSize: '13px' }}>Student</MenuItem>
+                   </Select>
+                </TableCell>
+                <TableCell sx={{ textAlign: "right" }}>
+                  <Button 
+                    size="small"
+                    onClick={() => handleUpdateRole(user._id)} 
+                    sx={{ 
+                      mr: 1, 
+                      fontSize: '12px',
+                      color: "#37352F",
+                      textTransform: "none",
+                      '&:hover': { backgroundColor: "#EFEFEF" }
+                    }}
+                  >
+                    Save
                   </Button>
-                  <IconButton color="secondary" onClick={() => handleDeleteUser(user._id)}>
-                    <DeleteIcon />
+                  <IconButton 
+                    size="small" 
+                    onClick={() => handleDeleteUser(user._id)}
+                    sx={{ '&:hover': { color: "#E16259" } }}
+                  >
+                    <DeleteIcon size={18} />
                   </IconButton>
                 </TableCell>
               </TableRow>
